@@ -165,6 +165,7 @@ public class Commands {
 			TimeSeries test = new TimeSeries("anomalyTest.csv");
 			sharedState.anomalyDetector.learnNormal(train);
 			sharedState.anomalyList = sharedState.anomalyDetector.detect(test);
+			dio.write("anomaly detection complete.\n");
 		}
 	}
 
@@ -178,6 +179,7 @@ public class Commands {
 			for (AnomalyReport ar : sharedState.anomalyList) {
 				dio.write(ar.timeStep + "\t" + ar.description + "\n");
 			}
+			dio.write("Done.\n");
 		}
 	}
 
@@ -189,6 +191,7 @@ public class Commands {
 		@Override
 		public void execute() {
 
+			sharedState.anomalies.clear();
 			for (int i = 0; i < sharedState.anomalyList.size()-1; i++) {
 				sharedState.anomalyStart = (int) sharedState.anomalyList.get(i).timeStep;
 				sharedState.anomalyLength = 1;
@@ -222,6 +225,8 @@ public class Commands {
 				line = dio.readText();
 			}
 
+			dio.write("Upload complete.\n");
+
 			Scanner userAnomalyCSV = null;
 			try {
 				userAnomalyCSV = new Scanner
@@ -234,6 +239,7 @@ public class Commands {
 				if (!userAnomalyCSV.hasNextLine()) break;
 				line = userAnomalyCSV.nextLine();
 				String[] times = line.split(",");
+				if(times.length!=2) continue;
 				int a = Integer.parseInt(times[0]);
 				int b = Integer.parseInt(times[1]);
 				userAnomalies.add(new Anomalies(a, b, b - a + 1));
